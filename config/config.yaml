@@ -1,0 +1,47 @@
+app:
+  title: "ForestLens AI"
+  max_upload_mb: 100
+
+input:
+  max_pixels: 30000000
+  supported_raster_extensions: [".tif", ".tiff", ".png", ".jpg", ".jpeg"]
+  supported_vector_extensions: [".kml"]
+
+inference:
+  model_name: "weecology/deepforest-tree"
+  model_revision: "main"
+  score_threshold: 0.30
+  patch_size: 400
+  patch_overlap: 0.05
+  iou_threshold: 0.05
+
+quality:
+  # Engineering diagnostics only; they are not scientific accuracy limits.
+  warn_resolution_m: 1.0
+  block_resolution_m: 5.0
+  sharpness_warn_threshold: 20.0
+  sharpness_block_threshold: 1.0
+  contrast_warn_threshold: 15.0
+  contrast_block_threshold: 2.0
+  brightness_low_threshold: 30.0
+  brightness_high_threshold: 225.0
+  clipping_low_value: 5.0
+  clipping_high_value: 250.0
+  clipping_warn_fraction: 0.10
+  clipping_block_fraction: 0.98
+
+area:
+  vegetation_refinement: true
+
+refinement:
+  bbox_padding_fraction: 0.10
+  min_component_pixels: 12
+  min_mask_fraction: 0.01
+  max_patch_fraction: 0.85
+  min_refinement_confidence: 0.25
+  min_vegetation_score: 0.35
+  center_search_radius_fraction: 0.45
+  morphology_kernel_size: 3
+
+spatial:
+  density_grid_size: 5

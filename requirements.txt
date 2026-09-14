@@ -1,0 +1,14 @@
+deepforest==2.1.0
+streamlit>=1.50,<2.0
+rasterio>=1.4,<2.0
+fastkml>=1.1,<2.0
+shapely>=2.1,<3.0
+pyproj>=3.7,<4.0
+geopandas>=1.0,<2.0
+opencv-python-headless>=4.10,<5.0
+pillow>=10,<12
+numpy>=2.0,<3.0
+pandas>=2.2,<3.0
+matplotlib>=3.9,<4.0
+pyyaml>=6.0,<7.0
+pytest>=8.0,<9.0

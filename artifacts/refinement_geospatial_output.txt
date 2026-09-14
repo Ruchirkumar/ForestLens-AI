@@ -1,0 +1,10 @@
+Image: C:\Users\ACER\Downloads\forestlens-ai-starter\forestlens-ai\.venv\Lib\site-packages\deepforest\data\OSBS_029.png
+Raw detections: 55
+Filtered detections: 55
+Refined crowns: 7
+Bbox fallbacks: 48
+Failed refinements: 0
+Mean refinement confidence: 0.088
+Total crown pixels: 190.0
+Total bbox proxy pixels: 59682.3
+Output: artifacts\crown_refinement_test.png

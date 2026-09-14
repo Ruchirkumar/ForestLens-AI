@@ -1,0 +1,7 @@
+C:\Users\ACER\Downloads\forestlens-ai-starter\forestlens-ai\.venv\Lib\site-packages\torch\jit\_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+GPU available: False, used: False
+TPU available: False, using: 0 TPU cores
+\U0001f4a1 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+C:\Users\ACER\Downloads\forestlens-ai-starter\forestlens-ai\src\detection\model.py:128: UserWarning: An image was passed directly to predict_image, the result.root_dir attribute will be None in the output dataframe, to use visualize.plot_results, please assign results.root_dir = <directory name>
+  predictions = model.predict_image(image_array)
