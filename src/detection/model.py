@@ -15,6 +15,14 @@ from PIL import Image
 
 MODEL_NAME = "weecology/deepforest-tree"
 MODEL_REVISION = "main"
+# DeepForest 2.1.0's ``predict_tile`` mosaics predictions from overlapping
+# windows. A 15% overlap creates a 120-pixel boundary margin for 800-pixel
+# tiles. Its documented/default mosaic IoU of 0.15 suppresses duplicate
+# overlap predictions without indiscriminately merging nearby crown candidates.
+TILE_PATCH_SIZE = 800
+TILE_OVERLAP = 0.15
+TILE_IOU_THRESHOLD = 0.15
+DIRECT_MAX_DIMENSION = 1400
 REQUIRED_PREDICTION_COLUMNS = frozenset(
     {"xmin", "ymin", "xmax", "ymax", "label", "score", "geometry"}
 )
@@ -117,17 +125,44 @@ def validate_prediction_schema(predictions: pd.DataFrame) -> pd.DataFrame:
     return predictions.copy()
 
 
+def _empty_predictions() -> pd.DataFrame:
+    """Return an empty frame with the public DeepForest prediction schema."""
+    return pd.DataFrame(columns=sorted(REQUIRED_PREDICTION_COLUMNS))
+
+
+def prediction_mode(image: ImageInput) -> str:
+    """Choose direct inference or tiled inference from validated dimensions."""
+    rgb = image_to_rgb_float32(image)
+    return "direct" if max(rgb.shape[:2]) <= DIRECT_MAX_DIMENSION else "tiled"
+
+
 def predict_detections(model: Any, image: ImageInput) -> pd.DataFrame:
-    """Run DeepForest prediction on a PIL or NumPy RGB/RGBA image.
+    """Run adaptive DeepForest prediction on a PIL or NumPy RGB/RGBA image.
 
     The raw result is returned without threshold filtering so downstream
     sensitivity analysis can compare thresholds against identical predictions.
+    Images above ``DIRECT_MAX_DIMENSION`` use DeepForest 2.1.0's supported
+    ``predict_tile`` API. The tiled array route expects BGR (OpenCV) ordering,
+    while this application otherwise keeps imagery in canonical RGB order.
     """
     image_array = image_to_rgb_float32(image)
     try:
-        predictions = model.predict_image(image_array)
+        if max(image_array.shape[:2]) <= DIRECT_MAX_DIMENSION:
+            predictions = model.predict_image(image=image_array)
+        else:
+            predictions = model.predict_tile(
+                image=image_array[:, :, ::-1].copy(),
+                patch_size=TILE_PATCH_SIZE,
+                patch_overlap=TILE_OVERLAP,
+                iou_threshold=TILE_IOU_THRESHOLD,
+                dataloader_strategy="single",
+            )
     except Exception as error:
-        raise DeepForestDetectionError("DeepForest prediction failed.") from error
+        raise DeepForestDetectionError("DeepForest prediction failed during adaptive inference.") from error
+
+    if predictions is None:
+        return _empty_predictions()
+
     return validate_prediction_schema(predictions)
 
 

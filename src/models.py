@@ -1,23 +1,26 @@
+"""Shared data models for raster metadata and legacy pipeline results."""
+
+from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Literal
 
 from affine import Affine
-
 import numpy as np
 import pandas as pd
 
 
 @dataclass(frozen=True)
 class RasterMetadata:
-    """Validated raster metadata without assuming that image-space units are metres."""
+    """Validated raster metadata without assuming image-space units are metres."""
 
-    path: Optional[str]
-    name: Optional[str]
+    path: str | None
+    name: str | None
     width: int
     height: int
     band_count: int
     dtype: str
-    crs: Optional[str]
+    crs: str | None
     crs_type: Literal["projected", "geographic", "missing", "unknown"]
     transform: Affine
     bounds: tuple[float, float, float, float]
@@ -26,13 +29,13 @@ class RasterMetadata:
     pixel_area_native: float
     gsd_x: float
     gsd_y: float
-    gsd_x_m: Optional[float]
-    gsd_y_m: Optional[float]
+    gsd_x_m: float | None
+    gsd_y_m: float | None
     georeferenced: bool
     geographic_crs: bool
     projected_crs: bool
-    units: Optional[str]
-    linear_unit_to_metre: Optional[float]
+    units: str | None
+    linear_unit_to_metre: float | None
     total_pixel_count: int
     physical_area_available: bool
     physical_area_reason: str
@@ -51,13 +54,15 @@ class RasterMetadata:
 
 @dataclass
 class AnalysisResult:
+    """Legacy pipeline result container retained for compatibility."""
+
     tree_count: int
-    canopy_area_m2: Optional[float] = None
-    canopy_area_ha: Optional[float] = None
-    aoi_area_m2: Optional[float] = None
-    canopy_cover_percent: Optional[float] = None
-    mean_confidence: Optional[float] = None
-    detections: pd.DataFrame = field(default_factory=lambda: pd.DataFrame())
-    overlay_image: Optional[np.ndarray] = None
+    canopy_area_m2: float | None = None
+    canopy_area_ha: float | None = None
+    aoi_area_m2: float | None = None
+    canopy_cover_percent: float | None = None
+    mean_confidence: float | None = None
+    detections: pd.DataFrame = field(default_factory=pd.DataFrame)
+    overlay_image: np.ndarray | None = None
     warnings: list[str] = field(default_factory=list)
     processing_time_seconds: float = 0.0

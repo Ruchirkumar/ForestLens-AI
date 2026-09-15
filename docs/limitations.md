@@ -31,8 +31,9 @@ directly suitable for planar area calculations, and ForestLens never applies a
 fixed degrees-to-metres conversion.
 
 Valid georeferencing provides spatial scale; it does not make DeepForest boxes
-or RGB-refined footprints exact. GSD is not model accuracy, and physical crown
-or canopy area is not calculated at this stage.
+or RGB-refined footprints exact. GSD is not model accuracy. Physical crown and
+canopy estimates remain unavailable without a defensible raster scale or an
+explicit user-provided GSD.
 
 ## KML AOIs
 

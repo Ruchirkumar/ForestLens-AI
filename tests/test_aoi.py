@@ -9,7 +9,7 @@ from shapely.geometry import box
 from src.geometry.crown_refinement import CrownRefinementResult
 from src.io.kml_reader import parse_kml
 from src.io.raster_reader import metadata_from_dataset
-from src.spatial.aoi import analyze_aoi
+from src.spatial.aoi import analyze_aoi, raster_footprint
 from src.spatial.aoi_filter import filter_trees_to_aoi, pixel_geometry_to_map
 
 
@@ -117,3 +117,20 @@ def test_pixel_geometry_to_map_uses_the_full_affine_transform():
     mapped = pixel_geometry_to_map(box(1, 2, 4, 6), metadata)
     assert mapped.area == pytest.approx(73.5)
     assert mapped.bounds == pytest.approx((103.0, 182.25, 111.0, 195.0))
+
+
+def test_raster_footprint_preserves_rotation_instead_of_using_bounds_envelope():
+    metadata = _metadata(
+        "EPSG:3857",
+        Affine(2, 0.5, 100, 0.25, -3, 200),
+        width=10,
+        height=8,
+    )
+
+    footprint = raster_footprint(metadata)
+
+    assert footprint.area == pytest.approx(490.0)
+    envelope_area = (metadata.bounds[2] - metadata.bounds[0]) * (
+        metadata.bounds[3] - metadata.bounds[1]
+    )
+    assert footprint.area < envelope_area

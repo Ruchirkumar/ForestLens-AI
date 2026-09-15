@@ -3,7 +3,9 @@ app:
   max_upload_mb: 100
 
 input:
-  max_pixels: 30000000
+  # The UI retains RGB imagery for quality checks, refinement, and evidence.
+  # Keep the per-run cap conservative rather than silently downscaling imagery.
+  max_pixels: 12000000
   supported_raster_extensions: [".tif", ".tiff", ".png", ".jpg", ".jpeg"]
   supported_vector_extensions: [".kml"]
 
@@ -11,9 +13,10 @@ inference:
   model_name: "weecology/deepforest-tree"
   model_revision: "main"
   score_threshold: 0.30
-  patch_size: 400
-  patch_overlap: 0.05
-  iou_threshold: 0.05
+  # Verified against the DeepForest 2.1.0 predict_tile API.
+  patch_size: 800
+  patch_overlap: 0.15
+  iou_threshold: 0.15
 
 quality:
   # Engineering diagnostics only; they are not scientific accuracy limits.

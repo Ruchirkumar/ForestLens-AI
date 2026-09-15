@@ -67,10 +67,10 @@ python scripts_geospatial_test.py
 
 GeoTIFF is preferred when a later workflow needs physical measurements. PNG/JPG
 remain useful for detection and visual validation but normally have no spatial
-reference. ForestLens only reports physical pixel or raster-footprint area when
-the raster has a valid projected CRS with reliable linear units; it never turns
-latitude/longitude degrees into metres with a fixed conversion. GSD is spatial
-scale, not model accuracy.
+reference. ForestLens only reports physical area when it can establish a
+defensible metric basis from raster georeferencing or an explicitly supplied
+GSD; it never turns latitude/longitude degrees into metres with a fixed
+conversion. GSD is spatial scale, not model accuracy.
 
 ## Optional KML AOI test
 

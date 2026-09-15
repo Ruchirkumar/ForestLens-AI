@@ -37,16 +37,19 @@ class AOIAnalysis:
 
 
 def raster_footprint(metadata: RasterMetadata) -> Polygon:
-    """Build the raster footprint from Rasterio-derived bounds."""
+    """Build the true footprint from every affine-transformed raster corner.
 
-    left, bottom, right, top = metadata.bounds
+    ``metadata.bounds`` is only an axis-aligned envelope. It must not be used
+    for AOI inclusion or clipping when the source has rotation or shear.
+    """
 
+    transform = metadata.transform
     return Polygon(
         (
-            (left, bottom),
-            (right, bottom),
-            (right, top),
-            (left, top),
+            transform @ (0, 0),
+            transform @ (metadata.width, 0),
+            transform @ (metadata.width, metadata.height),
+            transform @ (0, metadata.height),
         )
     )
 

@@ -4,10 +4,16 @@ import pytest
 from PIL import Image
 
 from src.detection.model import (
+    DIRECT_MAX_DIMENSION,
     DeepForestDetectionError,
     ImageValidationError,
+    TILE_IOU_THRESHOLD,
+    TILE_OVERLAP,
+    TILE_PATCH_SIZE,
     filter_detections,
     image_to_rgb_float32,
+    predict_detections,
+    prediction_mode,
     validate_prediction_schema,
 )
 
@@ -74,3 +80,48 @@ def test_pil_rgba_drops_alpha():
 def test_invalid_channel_counts_are_rejected(image):
     with pytest.raises(ImageValidationError):
         image_to_rgb_float32(image)
+
+
+class _DirectModel:
+    def __init__(self):
+        self.image = None
+
+    def predict_image(self, *, image):
+        self.image = image
+        return _predictions()
+
+
+class _TiledModel:
+    def __init__(self):
+        self.kwargs = None
+
+    def predict_tile(self, **kwargs):
+        self.kwargs = kwargs
+        return _predictions()
+
+
+def test_small_images_use_deepforest_direct_array_api():
+    model = _DirectModel()
+    image = np.zeros((DIRECT_MAX_DIMENSION, 8, 3), dtype=np.uint8)
+
+    result = predict_detections(model, image)
+
+    assert prediction_mode(image) == "direct"
+    assert model.image is not None and model.image.dtype == np.float32
+    pd.testing.assert_frame_equal(result, _predictions())
+
+
+def test_large_images_use_verified_tiled_api_and_bgr_input():
+    model = _TiledModel()
+    image = np.zeros((DIRECT_MAX_DIMENSION + 1, 8, 3), dtype=np.uint8)
+    image[0, 0] = [10, 20, 30]
+
+    predict_detections(model, image)
+
+    assert prediction_mode(image) == "tiled"
+    assert model.kwargs is not None
+    assert model.kwargs["patch_size"] == TILE_PATCH_SIZE
+    assert model.kwargs["patch_overlap"] == TILE_OVERLAP
+    assert model.kwargs["iou_threshold"] == TILE_IOU_THRESHOLD
+    assert model.kwargs["dataloader_strategy"] == "single"
+    assert model.kwargs["image"][0, 0].tolist() == [30.0, 20.0, 10.0]

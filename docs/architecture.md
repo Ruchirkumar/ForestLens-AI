@@ -35,8 +35,9 @@ measured.
 KML AOIs are optional and are read as WGS84 (`EPSG:4326`) Polygon or
 MultiPolygon geometry. Nested Documents, Folders, and Placemarks are searched
 recursively, and all usable polygons are unioned. The AOI is transformed to the
-raster CRS only when raster georeferencing is available, then intersected with a
-Rasterio-bounds footprint. The resulting effective AOI is the intersection for
+raster CRS only when raster georeferencing is available, then intersected with
+the full affine-transformed raster footprint. The resulting effective AOI is the
+intersection for
 partial overlaps. Image-pixel tree geometry is transformed through the raster
 affine transform before its AOI comparison. Boundary-intersecting detections are
 included once, while clipped footprints are retained for later metrics.
